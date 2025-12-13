@@ -1,0 +1,229 @@
+{
+  "name": "Oracle APEX Application Chatbot Integration",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "id": "a6978d61-3282-4724-97ae-b335db19dd5e",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        2768,
+        1072
+      ],
+      "webhookId": "76d4105c-36cc-4d6e-92d2-82df75665d5e"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant for an Oracle APEX application. Your role is to answer questions about the application using both the knowledge base and live data from the API.\n\nWhen answering questions:\n1. For general information about the application, use the Vector Store tool to search the knowledge base\n2. For current booking information, use the Get Bookings Data tool to fetch live data from the API\n3. For resource/equipment information, use the Get Resources Data tool to fetch live data from the API\n4. Provide clear, accurate answers based on the information found\n5. If you cannot find relevant information, politely let the user know\n6. Be concise but thorough in your responses\n7. Maintain a professional and friendly tone\n8. When presenting data, format it in a clear and readable way"
+        }
+      },
+      "id": "609133fa-7f81-45fd-b6d7-62c118fccc56",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        3256,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "id": "46cb997c-1dbb-4238-b33e-a357e8d933d3",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2992,
+        1296
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HOoJW9PIwBdoz5fr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "be0f2cc7-c60f-40ed-97f4-ae464ed04b15",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3120,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search for information about the Oracle APEX application, including features, functionality, and how to use different parts of the application",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        },
+        "topK": 3
+      },
+      "id": "5cef49f8-ff0a-41cb-abc8-4c3591e952b5",
+      "name": "Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        3248,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ca6ecbf6-a909-4808-9fb1-15d7c8250c37",
+      "name": "OpenAI Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3328,
+        1504
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HOoJW9PIwBdoz5fr",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Fetches booking information from the Oracle APEX application API. Use this tool when users ask about bookings, reservations, or scheduling information.",
+        "url": "https://g9622c90c66801a-ocpcdwgieeclf4oo.adb.uk-london-1.oraclecloudapps.com/ords/nciproject/bookins/CB/",
+        "options": {}
+      },
+      "id": "f9d339a8-73b5-43b6-9817-7a4efbd96906",
+      "name": "HTTP Request Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        3536,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Fetches resource information from the Oracle APEX application API. Use this tool when users ask about available resources, equipment, or facilities.",
+        "url": "https://g9622c90c66801a-ocpcdwgieeclf4oo.adb.uk-london-1.oraclecloudapps.com/ords/nciproject/bookins/RESOURCES/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        3664,
+        1296
+      ],
+      "id": "110e1661-ad18-43b9-bf18-db53bb85929b",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
