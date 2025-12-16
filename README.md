@@ -14,6 +14,8 @@ This repository contains the Oracle APEX application and supporting database scr
   SQL script to create required database objects.
 - `Application\Readable files\`  
   **Not required for installation.** These files represent the `f101_CAMPUS_BOOKING_APP.sql` split into multiple files for easier review.
+  `cba25-AIworkflows` 
+  Exported JSON for AI workflow for n8n.io
 
 ---
 
